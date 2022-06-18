@@ -38,12 +38,12 @@ The extension does 3 things:
 		{
 			"tasks": [
 				{
-				"type": "npm",
-				"script": "myDefaultBuildTask",
-				"group": {
-					"kind": "build",
-					"isDefault": true
-				}
+					"type": "npm",
+					"script": "myDefaultBuildTask",
+					"group": {
+						"kind": "build",
+						"isDefault": true
+					}
 				}
 			]
 		}
