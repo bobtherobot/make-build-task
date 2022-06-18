@@ -45,7 +45,7 @@ The extension does 3 things:
 		          "isDefault": true
 		        }
 		      }
-			]
+		  ]
 		}
 
 3. Creates a "build.js" at root of project (if not exist). Of course the build.js file is up to you to author.
