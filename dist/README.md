@@ -19,34 +19,34 @@ The extension does 3 things:
 
 1. Adds an entry to the "scripts" in "packages.json" as:
 
-	{
-		"name": "some project",
-		"version": "1.0.0",
-		"description": "",
-		"scripts": {
-			"myDefaultBuildTask": "node ./build.js" // <--- here
-		},
-		"author": "mike gieson",
-		"license": "ISC",
-		"dependencies": {
-			"myfs": "^1.0.22"
+		{
+			"name": "some project",
+			"version": "1.0.0",
+			"description": "",
+			"scripts": {
+				"myDefaultBuildTask": "node ./build.js" // <--- here
+			},
+			"author": "mike gieson",
+			"license": "ISC",
+			"dependencies": {
+				"myfs": "^1.0.22"
+			}
 		}
-	}
 
 2. Adds a "tasks" entry to ".vscode/tasks.json" as:
 
-	{
-		"tasks": [
-			{
-			"type": "npm",
-			"script": "myDefaultBuildTask",
-			"group": {
-				"kind": "build",
-				"isDefault": true
-			}
-			}
-		]
-	}
+		{
+			"tasks": [
+				{
+					"type": "npm",
+					"script": "myDefaultBuildTask",
+					"group": {
+						"kind": "build",
+						"isDefault": true
+					}
+				}
+			]
+		}
 
 3. Creates a "build.js" at root of project (if not exist). Of course the build.js file is up to you to author.
 
