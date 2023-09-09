@@ -1,8 +1,7 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 const vscode = require('vscode');
-
-const fs = require("fs")
+const myfs = require('myfs');
 
 
 // this method is called when your extension is activated
@@ -15,52 +14,28 @@ function getRoot() {
 	}
 	return null;
 }
-function open(path, kind) {
-	kind = kind || "text";
-	var str;
-	try {
-		str = fs.readFileSync(path, { encoding: 'utf8' });
-	} catch(err) {
 
-	}
-	
-	if(str){
-		if(kind == "json"){
-			return JSON.parse(str);
-		} else {
-			return str;
-		}
-	} else {
-		return false;
-	}
-	
-}
+function JSONparse(str) {
+    var obj = null;
+    try {
+        obj = JSON.parse(str);
+    } catch (e) {
+        // ignore
+    }
 
-function save(path, data, kind) {
-	kind = kind || "text"
-	var ok = false;
+    if (!obj) {
+        try {
+            // loose JSON parse, when str looks like a normal JS object:
+            //   {a:"foo"} -> converts to -> {"a":"foo"}
+            // alternative is to evil eval
+            // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/eval
+            obj = Function('"use strict";return (' + str + ')')();
+        } catch (e) {
+            // ignore
+        }
+    }
 
-	if(kind == "json"){
-		try {
-			var str = JSON.stringify(data, null, 2);
-			fs.writeFileSync(path, str, { encoding: 'utf8' });
-			ok = true;
-		} catch (err) {
-			// ignore
-		}
-	} else {
-		try {
-			fs.writeFileSync(path, data, { encoding: 'utf8' });
-			ok = true;
-		} catch (err) {
-			// ignore
-		}
-	}
-	
-
-	return ok;
-
-
+    return obj;
 }
 
 /**
@@ -86,24 +61,46 @@ function activate(context) {
 			// package.json
 			// -------------
 			var path = root + "/package.json";
-			var obj = open(path, "json");
+			var obj = myfs.open(path);
 
+            if( obj ){
+                obj = JSONparse(obj);
+            } else {
+                obj = {
+                    "name": "my project",
+                    "version": "1.0.0",
+                    "main": "build.js",
+                    "scripts": {
+                      "test": "echo \"Error: no test specified\" && exit 1",
+                    },
+                    "author": "",
+                    "license": "MIT",
+                    "description": ""
+                  }
+            }
+
+            
 
 			if (obj) {
 
 				// add to scripts
 				obj.scripts = obj.scripts || {};
 				obj.scripts.myDefaultBuildTask = "node ./build.js";
-				save(path, obj, "json");
+				myfs.save(path, JSON.stringify(obj));
 
 				// -----------
 				// tasks.json
 				// -----------
 				path = root + "/.vscode/tasks.json";
-				obj = open(path, "json");
-				if( !obj ){
-					obj = {}
-				}
+				obj = myfs.open(path);
+				if( obj ){
+					obj = JSONparse(obj);
+				} else {
+                    obj = {
+                        "version": "2.0.0",
+                        "tasks": []
+                    }
+                }
 
 				// clear out any tasks that "we" previously made
 				obj.tasks = obj.tasks || [];
@@ -131,17 +128,17 @@ function activate(context) {
 					}
 				});
 		
-				save(path, obj, "json");
+				myfs.save(path, JSON.stringify(obj));
 
 				// -----------
 				// build.js
 				// -----------
 				// create build file (if not exist):
-				var hasBuildJs = open(root + "/build.js", "text");
+				var hasBuildJs = myfs.open(root + "/build.js");
 				if( ! hasBuildJs ){
 					var data = "// put your build process in here.\n"
 					data += 'console.log("my build process");\n';
-					save(root + "/build.js", data, "text");
+					myfs.save(root + "/build.js", data);
 				}
 
 
